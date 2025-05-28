@@ -1,0 +1,38 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.todo-is-completed {
+  color: gray;
+  text-decoration: line-through;
+}
+
+.todo-container button {
+  display: none;
+}
+
+.todo-container:hover button {
+  display: inline-block;
+}
+
+.items-left {
+  font-size: 14px;
+  color: #9495a5;
+}
+
+.buttons-container button {
+  font-size: 14px;
+  color: #9495a5;
+  background-color: transparent;
+}
+
+.buttons-container:hover button {
+  color: #494c6b;
+}
+
+.buttons-container button.selected-button {
+  color: #3a7cfd;
+}
