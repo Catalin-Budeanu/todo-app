@@ -1,113 +1,68 @@
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
 import './App.css';
+import Navbar from './components/Navbar';
+import AddTodoForm from './components/AddTodoForm';
+import TodoSection from './components/TodoSection';
+import TodosFooter from './components/TodosFooter';
+import BackgroundWhiteTheme from './assets/background-white-theme.svg';
+import BackgroundDarkTheme from './assets/background-dark-theme.svg';
 
 const App = () => {
   const [todos, setTodos] = useState([]);
-  let [currentId, setCurrentId] = useState(1);
-  const numberOfUncompletedTodos = todos.filter(
-    (todo) => todo.isCompleted === false
-  ).length;
+  let [selectedFilter, setSelectedFilter] = useState('all');
+  const [theme, setTheme] = useState('light');
 
-  let [selectedButton, setSelectedButton] = useState('');
+  useEffect(() => {
+    document.body.className = '';
+    document.body.classList.add(`${theme}-theme`);
+  }, [theme]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const displayedTodos = todos.filter((todo) => {
+    if (selectedFilter === 'all') return true;
+    if (selectedFilter === 'active' && todo.isCompleted === false) return true;
+    if (selectedFilter === 'completed' && todo.isCompleted === true)
+      return true;
+  });
 
-    const data = new FormData(e.target);
-
-    const newTodos = [...todos];
-    newTodos.push({
-      id: currentId,
-      text: data.get('todo-text'),
-      isCompleted: false,
-    });
-
-    setTodos(newTodos);
-    setCurrentId(currentId + 1);
+  const switchTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
   console.log(todos);
-
-  const handleCheck = (todoId) => {
-    const newTodos = [...todos];
-
-    const todoIndex = newTodos.findIndex((todo) => todo.id === todoId);
-    newTodos[todoIndex].isCompleted = !newTodos[todoIndex].isCompleted;
-
-    setTodos(newTodos);
-  };
-
-  const handleDelete = (todoId) => {
-    const newTodos = [...todos];
-
-    const todoIndex = newTodos.findIndex((todo) => todo.id === todoId);
-    newTodos.splice(todoIndex, 1);
-    setTodos(newTodos);
-  };
-
-  const handleClickButtonAll = () => {
-    setSelectedButton('all');
-  };
-
-  const handleClickButtonActive = () => {
-    setSelectedButton('active');
-  };
-
-  const handleClickButtonCompleted = () => {
-    setSelectedButton('completed');
-  };
-
-  const handleClearCompleted = () => {
-    const filteredTodos = todos.filter((todo) => !todo.isCompleted);
-    setTodos(filteredTodos);
-  };
-
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Create a new todo..."
-          name="todo-text"
-        />
-        <button>Add</button>
-      </form>
-      {todos.map((todo) => (
-        <div key={todo.id} className="todo-container">
-          <input onChange={() => handleCheck(todo.id)} type="checkbox" />
-          <span
-            className={todo.isCompleted === true ? 'todo-is-completed' : ''}
-          >
-            {todo.text}
-          </span>
-          <button onClick={handleDelete}>delete</button>
-        </div>
-      ))}
+      <div
+        style={{
+          backgroundImage: `url(${
+            theme === 'light' ? BackgroundWhiteTheme : BackgroundDarkTheme
+          })`,
+          height: '50vh',
+          width: '100vw',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      ></div>
+      <div className="elements-card">
+        <Navbar theme={theme} switchTheme={switchTheme} />
+        <AddTodoForm todos={todos} setTodos={setTodos} theme={theme} />
+        {displayedTodos.map((todo) => (
+          <TodoSection
+            key={todo.id}
+            todo={todo}
+            todos={todos}
+            setTodos={setTodos}
+            theme={theme}
+          />
+        ))}
 
-      <div className="items-left">
-        <p>{numberOfUncompletedTodos} items left</p>
-      </div>
-      <div className="buttons-container">
-        <button
-          onClick={handleClickButtonAll}
-          className={selectedButton === 'all' ? 'selected-button' : ''}
-        >
-          All
-        </button>
-        <button
-          onClick={handleClickButtonActive}
-          className={selectedButton === 'active' ? 'selected-button' : ''}
-        >
-          Active
-        </button>
-        <button
-          onClick={handleClickButtonCompleted}
-          className={selectedButton === 'completed' ? 'selected-button' : ''}
-        >
-          Completed
-        </button>
-        <button onClick={handleClearCompleted}>Clear Completed</button>
+        <TodosFooter
+          todos={todos}
+          setTodos={setTodos}
+          selectedFilter={selectedFilter}
+          setSelectedFilter={setSelectedFilter}
+          theme={theme}
+        />
       </div>
     </>
   );
